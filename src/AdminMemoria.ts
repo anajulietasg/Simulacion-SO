@@ -1,7 +1,7 @@
 import { Bloque } from "./Bloque";
 import { Proceso } from "./Proceso";
 import { IAsignador } from "./IAsignador";
-import { FirstFit } from "./PoliticaBase";
+import { FirstFit } from "./FirstFit";
 
 export class AdminMemoria {       //la memoria es una lista de bloques
   private _bloques: Bloque[];

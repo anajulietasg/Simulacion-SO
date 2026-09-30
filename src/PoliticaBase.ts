@@ -18,9 +18,4 @@ export abstract class PoliticaBase implements IAsignador {      //clase abstract
   protected abstract esMejor(candidato: Bloque, actual: Bloque): boolean;    //cada politica tiene su propio criterio, protected: solo lo usan esta clase y sus hijas
 }
 
-export class FirstFit extends PoliticaBase {
-  protected esMejor(): boolean {
-    return false;          //se queda con el primero que encontró
-  }
-}
 
