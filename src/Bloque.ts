@@ -25,4 +25,12 @@ export class Bloque {
     achicarA(nuevoTamanio: number): void {
         this._tamanio = nuevoTamanio; 
     }
+
+    liberar(): void { 
+        this._pid = null;   //el bloque queda libre
+    }
+
+    agrandarEn(cantidad: number): void { 
+        this._tamanio += cantidad;       //crece al absorber un bloque de al lado
+    }
 }
