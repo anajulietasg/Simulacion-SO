@@ -1,35 +1,39 @@
 import { Bloque } from "./Bloque";
 import { Proceso } from "./Proceso";
+import { IAsignador } from "./IAsignador";
+import { FirstFit } from "./PoliticaBase";
 
 export class AdminMemoria {       //la memoria es una lista de bloques
-  tamanioTotal: number;
-  bloques: Bloque[];
+  private _bloques: Bloque[];
+  private politica: IAsignador;
 
-  constructor(tamanioTotal: number = 1024) {
-    this.tamanioTotal = tamanioTotal;         //es un solo bloque libre al inicio
-    this.bloques = [new Bloque(0, tamanioTotal)];
+  constructor(tamanioTotal: number = 1024, politica: IAsignador = new FirstFit()) {     //al crear el administrador puedo elegir el tamaño y la politica
+    this._bloques = [new Bloque(0, tamanioTotal)];     //un solo bloque libre
+    this.politica = politica;
   }
-    asignarFirstFit(proceso: Proceso): boolean {
-        for (let i = 0; i < this.bloques.length; i++) {        //recorre los bloques
-            const bloque = this.bloques[i];
-            if (bloque.estaLibre() && bloque.tamanio >= proceso.memoriaNecesaria) {     //si está libre y si es lo bastante grande para el proceso
-                this.partirYAsignar(i, bloque, proceso);    //el primero que cumple, lo usa y corta
-                return true;
-            }
-        }
-     return false;
-    }
 
-  private partirYAsignar(indice: number, bloque: Bloque, proceso: Proceso): void {  
-    if (bloque.tamanio > proceso.memoriaNecesaria) {                   //si el hueco es más grande que lo que el proceso necesita
-      const sobrante = bloque.tamanio - proceso.memoriaNecesaria;       //calcula el espacio que va a sobrar
-      const nuevoLibre = new Bloque(bloque.inicio + proceso.memoriaNecesaria, sobrante);   //nuevo bloque, comienza donde termina el proceso y su tamaño es sobrante
-      bloque.tamanio = proceso.memoriaNecesaria;          //achico el bloque y le paso el pid, ahora está ocupado
-      bloque.pid = proceso.pid;                             
-      this.bloques.splice(indice + 1, 0, nuevoLibre);     //mete el bloque libre nuevo en la lista
-    } 
-    else {      //si tamaño es justo
-      bloque.pid = proceso.pid;   
+  get bloques(): readonly Bloque[] {    //vista readonly para que nadie modifique la lista desde afuera
+    return [...this._bloques];          //con [...] armo un array nuevo
+  }
+
+  asignar(proceso: Proceso): boolean {
+    const indice = this.politica.elegirIndice(this._bloques, proceso.memoriaNecesaria);    //Le pregunto a la politica en qué hueco va
+    if (indice === -1) {
+      return false;          //no habia lugar, aviso que falló
+    }
+    this.partirYAsignar(indice, this._bloques[indice], proceso);
+    return true;            //si habia lugar, meto el proceso en ese hueco
+  }
+
+  private partirYAsignar(indice: number, bloque: Bloque, proceso: Proceso): void {     //mete el proceso en el hueco, si sobra espacio lo parte en dos
+    if (bloque.tamanio > proceso.memoriaNecesaria) {     
+      const sobrante = bloque.tamanio - proceso.memoriaNecesaria;     //cuanto va a quedar libre despues de meter el proceso
+      const nuevoLibre = new Bloque(bloque.inicio + proceso.memoriaNecesaria, sobrante);    //creo nuevo bloque de ese tamaño, comienza donde termina el proceso
+      bloque.achicarA(proceso.memoriaNecesaria);     //achico el hueco original al tamaño del proceso
+      bloque.ocupar(proceso.pid);            
+      this._bloques.splice(indice + 1, 0, nuevoLibre);    //inserto el bloque libre justo despues del que acabo de ocupar
+    } else {
+      bloque.ocupar(proceso.pid);
     }
   }
 }

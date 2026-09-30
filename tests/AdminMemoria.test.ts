@@ -3,21 +3,46 @@ import { AdminMemoria } from "../src/AdminMemoria";
 import { Proceso } from "../src/Proceso"
 
 describe("AdminMemoria", () => {
-  test("empieza con un solo bloque de 1024 y está libre", () => {
+  test("uarranca con un solo bloque libre de 1024", () => {
     const mem = new AdminMemoria(1024);
     expect(mem.bloques.length).toBe(1);
     expect(mem.bloques[0].tamanio).toBe(1024);
     expect(mem.bloques[0].estaLibre()).toBe(true);
   });
-    test("asignar un proceso en el primer hueco y partir", () => {
+
+  test("asigna un proceso en el primer hueco y parte el bloque", () => {
     const mem = new AdminMemoria(1024);
     const p1 = new Proceso("P1", 200, 5);
-    const asignado = mem.asignarFirstFit(p1);
+
+    const asignado = mem.asignar(p1);
+
     expect(asignado).toBe(true);
     expect(mem.bloques.length).toBe(2);
     expect(mem.bloques[0].pid).toBe("P1");
     expect(mem.bloques[0].tamanio).toBe(200);
     expect(mem.bloques[1].estaLibre()).toBe(true);
     expect(mem.bloques[1].tamanio).toBe(824);
+  });
+
+  test("una asignacion exacta no deja bloque sobrante", () => {
+    const mem = new AdminMemoria(200);
+    const p = new Proceso("P1", 200, 5);
+
+    const ok = mem.asignar(p);
+
+    expect(ok).toBe(true);
+    expect(mem.bloques.length).toBe(1);
+    expect(mem.bloques[0].pid).toBe("P1");
+  });
+
+  test("falla si no hay un hueco lo bastante grande", () => {
+    const mem = new AdminMemoria(100);
+    const p = new Proceso("P1", 200, 5);
+
+    const ok = mem.asignar(p);
+
+    expect(ok).toBe(false);
+    expect(mem.bloques.length).toBe(1);
+    expect(mem.bloques[0].estaLibre()).toBe(true);
   });
 });
