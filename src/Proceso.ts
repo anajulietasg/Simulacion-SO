@@ -35,4 +35,8 @@ export class Proceso {
   agotoQuantum(limite: number): boolean {          //avisa si el proceso ya gasto todo el quantum permitido
     return this._quantumConsumido === limite;
   }
+
+  pasarA(nuevoEstado: string): void {            // cambia el estado del proceso
+    this._estado = nuevoEstado;
+  }
 }
