@@ -25,4 +25,15 @@ describe("planificador round robin", () => {
         expect(plan.enCpu?.estado).toBe("ejecutando");
         expect(plan.colaListos.length).toBe(1);         //P2 sigue esperando
     });
+
+    test("ejecuta un tick del proceso que está en la CPU", () => {
+        const plan = new Planificador(2);
+        plan.agregarAListos(new Proceso("P1", 200, 3));      //necesita 3 ticks
+        plan.ponerAEjecutar();
+
+        plan.ejecutarTick();
+
+        expect(plan.enCpu?.tiempoRestante).toBe(2);            //usó uno
+        expect(plan.enCpu?.quantumConsumido).toBe(1);         //gastó un tick de su turno
+    });
 });

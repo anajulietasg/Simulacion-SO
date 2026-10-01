@@ -32,4 +32,11 @@ export class Planificador {
             this._enCpu = proceso;
         }
     }
+
+    ejecutarTick(): void {            //ejecuta un tick del proceso que está en la CPU
+        if (this._enCpu === null) {
+            return;               //no hay nada que ejecutar
+        }
+        this._enCpu.ejecutarUnTick();
+    }
 }
