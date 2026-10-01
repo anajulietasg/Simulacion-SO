@@ -27,4 +27,12 @@ export class Proceso {
   terminado(): boolean {        //avisa si al proceso ya no le queda tiempo de CPU
     return this._tiempoRestante === 0;      //true cuando su tiempo llegó a cero y false si todavía le queda
   }
+
+  reiniciarQuantum(): void {     //vuelve el quantum a cero para cuando el proceso arranca un nuevo turno
+    this._quantumConsumido = 0;
+  }
+
+  agotoQuantum(limite: number): boolean {          //avisa si el proceso ya gasto todo el quantum permitido
+    return this._quantumConsumido === limite;
+  }
 }

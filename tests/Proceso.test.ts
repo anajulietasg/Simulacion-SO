@@ -24,4 +24,14 @@ describe("Proceso", () => {
         p.ejecutarUnTick();                     //usa su tick
         expect(p.terminado()).toBe(true);      //llega a cero
     });
+
+    test("maneja su quantum, avisa cuando se agota y lo reinicia", () => {
+        const p = new Proceso("P1", 200, 5);
+        p.ejecutarUnTick();
+        expect(p.agotoQuantum(2)).toBe(false);    //lleva 1 de 2
+        p.ejecutarUnTick();
+        expect(p.agotoQuantum(2)).toBe(true);     //lleva 2 de 2, se agotó
+        p.reiniciarQuantum();
+        expect(p.quantumConsumido).toBe(0);       //arranca un turno nuevo
+    });
 });
