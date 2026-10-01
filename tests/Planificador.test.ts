@@ -36,4 +36,16 @@ describe("planificador round robin", () => {
         expect(plan.enCpu?.tiempoRestante).toBe(2);            //usó uno
         expect(plan.enCpu?.quantumConsumido).toBe(1);         //gastó un tick de su turno
     });
+
+    test("cuando el proceso termina, lo devuelve y deja la CPU libre", () => {
+        const plan = new Planificador(2);
+        plan.agregarAListos(new Proceso("P1", 200, 1));    //necesita un solo tick
+        plan.ponerAEjecutar();
+
+        const terminado = plan.ejecutarTick();
+
+        expect(terminado?.pid).toBe("P1");            //devolvio a P1
+        expect(terminado?.estado).toBe("terminado");
+        expect(plan.enCpu).toBe(null);                //la CPU quedó libre
+    });
 });

@@ -33,10 +33,20 @@ export class Planificador {
         }
     }
 
-    ejecutarTick(): void {            //ejecuta un tick del proceso que está en la CPU
+    ejecutarTick(): Proceso | null {            //ejecuta un tick del proceso que está en la CPU
         if (this._enCpu === null) {
-            return;               //no hay nada que ejecutar
+            return null;               //no hay nada que ejecutar
         }
+
+        const proceso = this._enCpu;
         this._enCpu.ejecutarUnTick();
+
+        if (proceso.terminado()) {          //si terminó su tiempo de CPU, lo saco de la CPU y no vuelve a la fila
+            proceso.pasarA("terminado");
+            this._enCpu = null       //deja la CPU libre
+            return proceso;          //lo devuelve para que el simulador libere su memoria
+        }
+        return null;
     }
+
 }
