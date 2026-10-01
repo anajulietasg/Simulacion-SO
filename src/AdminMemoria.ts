@@ -36,4 +36,29 @@ export class AdminMemoria {       //la memoria es una lista de bloques
       bloque.ocupar(proceso.pid);
     }
   }
+  
+  liberar(pid: string): boolean {           //libera el bloque de un proceso que terminó y junta los huecos de al lado
+    for (const bloque of this._bloques) {
+      if (bloque.pid === pid) {
+        bloque.liberar();      //lo marco libre
+        this.coalescencia();   //junto los huecos que hayan quedado pegados
+        return true;
+      }
+    }
+    return false;              //no habia ningun proceso con ese pid
+  }
+
+  private coalescencia(): void {     //une en uno solo bloque los libres que esten uno al lado del otro
+    let i = 0;
+    while (i < this._bloques.length - 1) {
+      const actual = this._bloques[i];
+      const siguiente = this._bloques[i + 1];
+      if (actual.estaLibre() && siguiente.estaLibre()) {
+        actual.agrandarEn(siguiente.tamanio);         //el actual absorbe al siguiente
+        this._bloques.splice(i + 1, 1);           //saco al siguiente de la lista
+      } else {
+        i++;     //si no se pueden juntar avanzo al siguiente
+      }
+    }
+  }
 }
