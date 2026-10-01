@@ -13,4 +13,16 @@ describe("planificador round robin", () => {
         expect(plan.colaListos[0].pid).toBe("P1");     
         expect(p1.estado).toBe("listo");              //quedó en estado listo
     });
+
+    test("pone a ejecutar el primero de la fila en la CPU", () => {
+        const plan = new Planificador(2);
+        plan.agregarAListos(new Proceso("P1", 200, 3));
+        plan.agregarAListos(new Proceso("P2", 100, 2));
+
+        plan.ponerAEjecutar();
+
+        expect(plan.enCpu?.pid).toBe("P1");          //P1 tomó la CPU
+        expect(plan.enCpu?.estado).toBe("ejecutando");
+        expect(plan.colaListos.length).toBe(1);         //P2 sigue esperando
+    });
 });
