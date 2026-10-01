@@ -55,7 +55,7 @@ export class AdminMemoria {       //la memoria es una lista de bloques
       const siguiente = this._bloques[i + 1];
       if (actual.estaLibre() && siguiente.estaLibre()) {
         actual.agrandarEn(siguiente.tamanio);         //el actual absorbe al siguiente
-        this._bloques.splice(i + 1, 1);           //saco al siguiente de la lista
+        this._bloques.splice(i + 1, 1);           //saco al siguiente de la lista, i+1 es la posición del siguiente y el 1 es cuántos elementos borra
       } else {
         i++;     //si no se pueden juntar avanzo al siguiente
       }
