@@ -18,4 +18,10 @@ describe("Proceso", () => {
         expect(p.quantumConsumido).toBe(1);    //gasto un tick de su turno
     });
 
+    test("terminado avisa cuando el proceso ya no tiene tiempo", () => {
+        const p = new Proceso("P1", 200, 1);   //le falta un solo tick
+        expect(p.terminado()).toBe(false);   
+        p.ejecutarUnTick();                     //usa su tick
+        expect(p.terminado()).toBe(true);      //llega a cero
+    });
 });

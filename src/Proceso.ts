@@ -23,4 +23,8 @@ export class Proceso {
     this._tiempoRestante--;
     this._quantumConsumido++;
   }
+
+  terminado(): boolean {        //avisa si al proceso ya no le queda tiempo de CPU
+    return this._tiempoRestante === 0;      //true cuando su tiempo llegó a cero y false si todavía le queda
+  }
 }
