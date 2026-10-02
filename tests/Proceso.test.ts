@@ -41,4 +41,10 @@ describe("Proceso", () => {
         p.pasarA("listo");
         expect(p.estado).toBe("listo");   //quedo en el estado nuevo
     });
+
+    test("rechaza datos invalidos al crear un proceso", () => {
+        expect(() => new Proceso("P1", -100, 3)).toThrow();   
+        expect(() => new Proceso("P1", 200, 0)).toThrow();    
+        expect(() => new Proceso("", 200, 3)).toThrow();      
+    });
 });

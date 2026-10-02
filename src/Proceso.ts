@@ -7,6 +7,15 @@ export class Proceso {
   private _bloqueoRestante: number = 0;       //ticks que le faltan esperar
 
   constructor(pid: string, memoriaNecesaria: number, tiempoCpu: number) {
+    if (pid.trim() === "") {
+      throw new Error("El pid no puede estar vacio");
+    }
+    if (!Number.isInteger(memoriaNecesaria) || memoriaNecesaria <= 0) {
+      throw new Error("La memoria debe ser un entero positivo");
+    }
+    if (!Number.isInteger(tiempoCpu) || tiempoCpu <= 0) {
+      throw new Error("El tiempo de CPU debe ser un entero positivo");
+    }
     this._pid = pid;
     this._memoriaNecesaria = memoriaNecesaria;
     this._tiempoRestante = tiempoCpu;
