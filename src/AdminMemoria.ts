@@ -61,4 +61,15 @@ export class AdminMemoria {       //la memoria es una lista de bloques
       }
     }
   }
+
+  metricas() {       //devuelve los numeros de la memoria en este momento
+    const ocupada = this._bloques
+      .filter(b => !b.estaLibre())               //me quedo con los ocupados
+      .reduce((suma, b) => suma + b.tamanio, 0);    //sumo sus tamaños
+    const libres = this._bloques.filter(b => b.estaLibre());
+    const libreTotal = libres.reduce((suma, b) => suma + b.tamanio, 0);
+    const mayorHueco = libres.length > 0 ? Math.max(...libres.map(b => b.tamanio)) : 0;
+    return { ocupada, libreTotal, mayorHueco };
+  }
+  
 }

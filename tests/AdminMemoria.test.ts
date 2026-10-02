@@ -79,4 +79,13 @@ describe("AdminMemoria", () => {
     expect(mem.liberar("PX")).toBe(false);
   });
 
+  test("calcula memoria ocupada, libre y el mayor hueco", () => {
+    const mem = new AdminMemoria(1024);
+    mem.asignar(new Proceso("P1", 200, 3));
+    const m = mem.metricas();
+    expect(m.ocupada).toBe(200);
+    expect(m.libreTotal).toBe(824);
+    expect(m.mayorHueco).toBe(824);
+  });
+
 });
