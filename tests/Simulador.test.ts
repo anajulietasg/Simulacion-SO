@@ -70,6 +70,16 @@ describe("Simulador", () => {
         sim.avanzarTick();
         sim.avanzarTick();
         expect(sim.ticksCpuOcupada).toBe(2);  
-  });
+    });
+
+    test("reune las metricas del sistema", () => {
+        const sim = new Simulador(1024, 2);
+        sim.registrarProceso(new Proceso("P1", 200, 2));
+        sim.avanzarTick();
+        const m = sim.metricas();
+        expect(m.usoCpu).toBe(100);              // trabajó el unico tick que pasó
+        expect(m.ocupacionMemoria).toBeCloseTo(19.53);   //200 de 1024
+        expect(m.cambiosDeContexto).toBe(0);
+    });
 });
 

@@ -103,4 +103,17 @@ export class Simulador {
             bloqueados: this._colaBloqueados.map(p => p.pid),
         };
     }
+
+    metricas() {          //reune las métricas del sistema
+        const mem = this._memoria.metricas();
+        const usoCpu = this._tick === 0 ? 0 : (this._ticksCpuOcupada / this._tick) * 100;
+        return {
+            usoCpu,
+            ocupacionMemoria: (mem.ocupada / 1024) * 100,
+            cambiosDeContexto: this._planificador.cambiosDeContexto,
+            memoriaLibre: mem.libreTotal,
+            mayorHueco: mem.mayorHueco,
+            fragmentacion: this._memoria.fragmentacionExterna(),
+        };
+    }
 }
