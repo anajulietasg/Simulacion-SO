@@ -97,5 +97,14 @@ describe("Simulador", () => {
         const sim = new Simulador(1024, 2);
         expect(() => sim.registrarProceso(new Proceso("P1", 2048, 3))).toThrow();
     });
+
+    test("el estado muestra los terminados y el mapa de memoria", () => {
+        const sim = new Simulador(1024, 2);
+        sim.registrarProceso(new Proceso("P1", 200, 1));   
+        sim.avanzarTick();
+        const estado = sim.estadoActual();
+        expect(estado.terminados).toEqual(["P1"]);          
+        expect(estado.mapaMemoria.length).toBeGreaterThan(0);  //hay mapa
+    });
 });
 

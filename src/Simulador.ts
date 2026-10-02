@@ -13,6 +13,7 @@ export class Simulador {
     private _ticksCpuOcupada: number = 0;  
     private _tamanioMemoria: number;
     private _pidsUsados: Set<string> = new Set();   
+    private _terminados: Proceso[] = [];
 
 
     constructor(
@@ -100,6 +101,7 @@ export class Simulador {
         const terminado = this._planificador.ejecutarTick();
         if (terminado !== null) {
             this._memoria.liberar(terminado.pid);        //si alguno terminó, libero su memoria
+            this._terminados.push(terminado);
         }
     }
 
@@ -118,6 +120,12 @@ export class Simulador {
             listos: this._planificador.colaListos.map(p => p.pid),
             esperandoMemoria: this._colaNuevos.map(p => p.pid),
             bloqueados: this._colaBloqueados.map(p => p.pid),
+            terminados: this._terminados.map(p => p.pid),
+            mapaMemoria: this._memoria.bloques.map(b => ({
+                inicio: b.inicio,
+                tamanio: b.tamanio,
+                pid: b.pid,
+            })),
         };
     }
 
