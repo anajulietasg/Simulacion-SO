@@ -92,5 +92,10 @@ describe("Simulador", () => {
         sim.registrarProceso(new Proceso("P1", 200, 3));
         expect(() => sim.registrarProceso(new Proceso("P1", 100, 2))).toThrow();
     });
+
+    test("rechaza procesos que piden más memoria que la disponible", () => {
+        const sim = new Simulador(1024, 2);
+        expect(() => sim.registrarProceso(new Proceso("P1", 2048, 3))).toThrow();
+    });
 });
 

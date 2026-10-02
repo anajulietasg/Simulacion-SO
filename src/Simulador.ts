@@ -55,6 +55,9 @@ export class Simulador {
         if (this._pidsUsados.has(proceso.pid)) {
             throw new Error(`Ya existe un proceso con el pid ${proceso.pid}`);
         }
+        if (proceso.memoriaNecesaria > this._tamanioMemoria) {
+            throw new Error(`El proceso ${proceso.pid} pide mas memoria que la total`);
+        }
         this._pidsUsados.add(proceso.pid);
         proceso.pasarA("nuevo");
         this._colaNuevos.push(proceso);
