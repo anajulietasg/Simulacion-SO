@@ -81,5 +81,10 @@ describe("Simulador", () => {
         expect(m.ocupacionMemoria).toBeCloseTo(19.53);   //200 de 1024
         expect(m.cambiosDeContexto).toBe(0);
     });
+
+    test("rechaza memoria o quantum invalidos", () => {
+        expect(() => new Simulador(0, 2)).toThrow();    
+        expect(() => new Simulador(1024, -1)).toThrow(); 
+    });
 });
 

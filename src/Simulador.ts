@@ -11,15 +11,24 @@ export class Simulador {
     private _colaNuevos: Proceso[] = [];    //procesos que todavia no tienen memoria
     private _colaBloqueados: Proceso[] = [];     //procesos esperando una entrada o salida
     private _ticksCpuOcupada: number = 0;  
+    private _tamanioMemoria: number;
+
 
     constructor(
         tamanioMemoria: number = 1024,
         quantum: number = 2,
         politica: IAsignador = new FirstFit()
     ) {
+        if (!Number.isInteger(tamanioMemoria) || tamanioMemoria <= 0) {
+            throw new Error("La memoria total debe ser un entero positivo");
+        }
+        if (!Number.isInteger(quantum) || quantum <= 0) {
+            throw new Error("El quantum debe ser un entero positivo");
+        }
         this._memoria = new AdminMemoria(tamanioMemoria, politica);
         this._planificador = new Planificador(quantum);
         this._tick = 0;
+        this._tamanioMemoria = tamanioMemoria;
     }
 
     get tick(): number { 
@@ -109,7 +118,7 @@ export class Simulador {
         const usoCpu = this._tick === 0 ? 0 : (this._ticksCpuOcupada / this._tick) * 100;
         return {
             usoCpu,
-            ocupacionMemoria: (mem.ocupada / 1024) * 100,
+            ocupacionMemoria: (mem.ocupada / this._tamanioMemoria) * 100,
             cambiosDeContexto: this._planificador.cambiosDeContexto,
             memoriaLibre: mem.libreTotal,
             mayorHueco: mem.mayorHueco,
