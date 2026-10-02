@@ -12,6 +12,7 @@ export class Simulador {
     private _colaBloqueados: Proceso[] = [];     //procesos esperando una entrada o salida
     private _ticksCpuOcupada: number = 0;  
     private _tamanioMemoria: number;
+    private _pidsUsados: Set<string> = new Set();   
 
 
     constructor(
@@ -51,6 +52,10 @@ export class Simulador {
     }
 
     registrarProceso(proceso: Proceso): void {           //ingresa un proceso nuevo al sistema, todavia sin memoria
+        if (this._pidsUsados.has(proceso.pid)) {
+            throw new Error(`Ya existe un proceso con el pid ${proceso.pid}`);
+        }
+        this._pidsUsados.add(proceso.pid);
         proceso.pasarA("nuevo");
         this._colaNuevos.push(proceso);
     }
@@ -125,4 +130,5 @@ export class Simulador {
             fragmentacion: this._memoria.fragmentacionExterna(),
         };
     }
+
 }

@@ -86,5 +86,11 @@ describe("Simulador", () => {
         expect(() => new Simulador(0, 2)).toThrow();    
         expect(() => new Simulador(1024, -1)).toThrow(); 
     });
+
+    test("rechaza registrar dos procesos con el mismo pid", () => {
+        const sim = new Simulador(1024, 2);
+        sim.registrarProceso(new Proceso("P1", 200, 3));
+        expect(() => sim.registrarProceso(new Proceso("P1", 100, 2))).toThrow();
+    });
 });
 
