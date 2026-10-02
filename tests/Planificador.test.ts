@@ -47,5 +47,34 @@ describe("planificador round robin", () => {
         expect(terminado?.pid).toBe("P1");            //devolvio a P1
         expect(terminado?.estado).toBe("terminado");
         expect(plan.enCpu).toBe(null);                //la CPU quedó libre
+        expect(plan.cambiosDeContexto).toBe(0);        //no hubo cambios de contexto
+    });
+
+    test("si se agota el quantum y hay otros, rota y cuenta un cambio de contexto", () => {
+        const plan = new Planificador(2);
+        plan.agregarAListos(new Proceso("P1", 200, 5));
+        plan.agregarAListos(new Proceso("P2", 100, 5));
+
+        plan.ponerAEjecutar();
+        plan.ejecutarTick();     
+        plan.ejecutarTick();    //P1 usa 2 de 2, se le vence
+
+        expect(plan.enCpu).toBe(null);
+        expect(plan.colaListos[0].pid).toBe("P2");   //P2 pasa a ser el primero
+        expect(plan.colaListos[1].pid).toBe("P1");   //P1 volvió al final
+        expect(plan.cambiosDeContexto).toBe(1);
+    });
+
+    test("si se agota el quantum pero esta solo, renueva y sigue", () => {
+        const plan = new Planificador(2);
+        plan.agregarAListos(new Proceso("P1", 200, 5));
+
+        plan.ponerAEjecutar();
+        plan.ejecutarTick();
+        plan.ejecutarTick();   //2 de 2, pero no hay otro proceso esperando
+
+        expect(plan.enCpu?.pid).toBe("P1");             //sigue en la CPU
+        expect(plan.enCpu?.quantumConsumido).toBe(0);   //renovó el quantum
+        expect(plan.cambiosDeContexto).toBe(0);
     });
 });

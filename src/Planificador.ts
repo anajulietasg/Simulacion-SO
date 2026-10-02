@@ -4,11 +4,13 @@ export class Planificador {
     private _colaListos: Proceso[];     //la fila de procesos que esperan la CPU
     private _quantumLimite: number;      //cuantos ticks seguidos puede usar cada uno
     private _enCpu: Proceso | null;     //el unico proceso que está ejecutando, o nadie
+    private _cambiosDeContexto: number;
 
     constructor(quantumLimite: number = 2) {
         this._colaListos = [];                //arranca vacia
         this._quantumLimite = quantumLimite;
         this._enCpu = null;
+        this._cambiosDeContexto = 0;
     }
 
     get colaListos(): readonly Proceso[] {   //vista de solo lectura
@@ -17,6 +19,10 @@ export class Planificador {
 
     get enCpu(): Proceso | null { 
         return this._enCpu; 
+    }
+
+    get cambiosDeContexto(): number { 
+        return this._cambiosDeContexto; 
     }
 
     agregarAListos(proceso: Proceso): void {          //un proceso que ya tiene memoria entra al final de la fila
@@ -45,6 +51,17 @@ export class Planificador {
             proceso.pasarA("terminado");
             this._enCpu = null       //deja la CPU libre
             return proceso;          //lo devuelve para que el simulador libere su memoria
+        }
+
+        if (proceso.agotoQuantum(this._quantumLimite)) {
+            if (this._colaListos.length > 0) {        //hay otros esperando, rota y se cuenta un cambio de contexto
+                proceso.pasarA("listo");
+                this._colaListos.push(proceso);       //vuelve al final de la fila
+                this._enCpu = null;
+                this._cambiosDeContexto++;
+            } else {                                //el único en la lista, renueva su quantum y sigue sin cambio de contexto
+                proceso.reiniciarQuantum();
+            }
         }
         return null;
     }
