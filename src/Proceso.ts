@@ -3,7 +3,8 @@ export class Proceso {
   private _memoriaNecesaria: number;
   private _tiempoRestante: number;
   private _estado: string;
-  private _quantumConsumido: number;   //ticks seguidos que lleva en la CPU en su turno
+  private _quantumConsumido: number;      //ticks seguidos que lleva en la CPU en su turno
+  private _bloqueoRestante: number = 0;       //ticks que le faltan esperar
 
   constructor(pid: string, memoriaNecesaria: number, tiempoCpu: number) {
     this._pid = pid;
@@ -38,5 +39,18 @@ export class Proceso {
 
   pasarA(nuevoEstado: string): void {            // cambia el estado del proceso
     this._estado = nuevoEstado;
+  }
+
+  bloquearPor(ticks: number): void {
+    this._estado = "bloqueado";
+    this._bloqueoRestante = ticks;
+  }
+
+  descontarBloqueo(): void { 
+    this._bloqueoRestante--; 
+  }
+
+  terminoBloqueo(): boolean { 
+    return this._bloqueoRestante === 0; 
   }
 }

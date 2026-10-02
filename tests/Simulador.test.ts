@@ -17,5 +17,17 @@ describe("Simulador", () => {
         expect(sim.colaNuevos[0].pid).toBe("P1");
         expect(sim.colaNuevos[0].estado).toBe("nuevo");
     });
+
+    test("baja el bloqueo y manda a listos al que ya espero", () => {
+        const sim = new Simulador(1024, 2);
+        const p = new Proceso("P1", 200, 3);
+        p.bloquearPor(1);                      //le falta 1 tick de espera
+        (sim as any)._colaBloqueados.push(p);    //lo meto a bloqueados
+
+        sim.actualizarBloqueados();        //le resta un tick de espera y lo manda a listos 
+
+        expect(sim.colaBloqueados.length).toBe(0);            
+        expect(sim.planificador.colaListos[0].pid).toBe("P1"); 
+    });
 });
 
