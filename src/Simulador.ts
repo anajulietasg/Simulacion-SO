@@ -10,6 +10,7 @@ export class Simulador {
     private _tick: number;                  //el reloj, cuántos ticks pasaron
     private _colaNuevos: Proceso[] = [];    //procesos que todavia no tienen memoria
     private _colaBloqueados: Proceso[] = [];     //procesos esperando una entrada o salida
+    private _ticksCpuOcupada: number = 0;  
 
     constructor(
         tamanioMemoria: number = 1024,
@@ -35,6 +36,9 @@ export class Simulador {
     }
     get colaBloqueados(): readonly Proceso[] { 
         return [...this._colaBloqueados]; 
+    }
+    get ticksCpuOcupada(): number { 
+        return this._ticksCpuOcupada; 
     }
 
     registrarProceso(proceso: Proceso): void {           //ingresa un proceso nuevo al sistema, todavia sin memoria
@@ -73,9 +77,12 @@ export class Simulador {
         this.admitirProcesos();        //intento dar memoria a los nuevos
         this.actualizarBloqueados();   //reviso los que esperaban una entrada o salida
         this._planificador.ponerAEjecutar();   //si la CPU esta libre, despacho
-        const terminado = this._planificador.ejecutarTick();  // 4. ejecuto un tick
+        if (this._planificador.enCpu !== null) {
+            this._ticksCpuOcupada++;                 //la CPU trabajó en este tick
+        }
+        const terminado = this._planificador.ejecutarTick();
         if (terminado !== null) {
-            this._memoria.liberar(terminado.pid);  // si alguno termino, libero su memoria
+            this._memoria.liberar(terminado.pid);        //si alguno terminó, libero su memoria
         }
     }
 

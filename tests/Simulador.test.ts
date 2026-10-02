@@ -63,5 +63,13 @@ describe("Simulador", () => {
         expect(estado.tick).toBe(1);
         expect(estado.enCpu).toBe("P1");   
     });
+
+    test("cuenta los ticks en que la CPU estuvo ocupada", () => {
+        const sim = new Simulador(1024, 2);
+        sim.registrarProceso(new Proceso("P1", 200, 3));
+        sim.avanzarTick();
+        sim.avanzarTick();
+        expect(sim.ticksCpuOcupada).toBe(2);  
+  });
 });
 
