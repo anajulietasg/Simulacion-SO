@@ -72,4 +72,11 @@ export class AdminMemoria {       //la memoria es una lista de bloques
     return { ocupada, libreTotal, mayorHueco };
   }
   
+  fragmentacionExterna(): number {             //qué tan partida esta la memoria libre
+    const m = this.metricas();
+    if (m.libreTotal === 0) {
+      return 0;             
+    }
+    return (1 - m.mayorHueco / m.libreTotal) * 100;
+  }
 }

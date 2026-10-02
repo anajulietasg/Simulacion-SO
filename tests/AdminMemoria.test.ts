@@ -88,4 +88,14 @@ describe("AdminMemoria", () => {
     expect(m.mayorHueco).toBe(824);
   });
 
+  test("calcula la fragmentacion externa con huecos separados", () => {
+    const mem = new AdminMemoria(500);
+    mem.asignar(new Proceso("P1", 100, 3));   
+    mem.asignar(new Proceso("P2", 100, 3));   
+    mem.asignar(new Proceso("P3", 300, 3));   
+    mem.liberar("P1");   
+    mem.liberar("P3");   
+    // fragmentacion = (1 - 300/400) * 100 = 25
+    expect(mem.fragmentacionExterna()).toBe(25);
+  });
 });
