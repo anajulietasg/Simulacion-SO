@@ -29,5 +29,16 @@ describe("Simulador", () => {
         expect(sim.colaBloqueados.length).toBe(0);            
         expect(sim.planificador.colaListos[0].pid).toBe("P1"); 
     });
+
+    test("en un tick admite, ejecuta y al terminar libera la memoria", () => {
+        const sim = new Simulador(1024, 2);
+        sim.registrarProceso(new Proceso("P1", 200, 1));   
+
+        sim.avanzarTick();
+
+        expect(sim.tick).toBe(1);
+        expect(sim.memoria.bloques.length).toBe(1);          //P1 terminó y liberó, la memoria vuelve a toda libre
+        expect(sim.memoria.bloques[0].tamanio).toBe(1024);
+    });
 });
 

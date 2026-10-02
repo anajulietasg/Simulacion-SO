@@ -42,6 +42,19 @@ export class Simulador {
         this._colaNuevos.push(proceso);
     }
 
+    admitirProcesos(): void {              //intenta darle memoria a los procesos nuevos. Los que entran pasan a listos
+        const siguen: Proceso[] = [];     //los que no consiguieron memoria todavia
+        for (const proceso of this._colaNuevos) {
+            if (this._memoria.asignar(proceso)) {
+                this._planificador.agregarAListos(proceso);   //consiguió memoria, va a la fila de la CPU
+            } else {
+                proceso.pasarA("esperando_memoria");
+                siguen.push(proceso);                          //no entró, sigue esperando
+            }
+        }
+        this._colaNuevos = siguen;      //en la cola quedan solo los que no entraron
+    }
+
     actualizarBloqueados(): void {      //a los bloqueados les resta un tick de espera y al que ya cumplió lo manda a listos
         const siguen: Proceso[] = [];
         for (const proceso of this._colaBloqueados) {
@@ -55,4 +68,14 @@ export class Simulador {
         this._colaBloqueados = siguen;
     }
 
+    avanzarTick(): void {
+        this._tick++;
+        this.admitirProcesos();        //intento dar memoria a los nuevos
+        this.actualizarBloqueados();   //reviso los que esperaban una entrada o salida
+        this._planificador.ponerAEjecutar();   //si la CPU esta libre, despacho
+        const terminado = this._planificador.ejecutarTick();  // 4. ejecuto un tick
+        if (terminado !== null) {
+            this._memoria.liberar(terminado.pid);  // si alguno termino, libero su memoria
+        }
+    }
 }
