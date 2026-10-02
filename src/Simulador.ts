@@ -86,4 +86,14 @@ export class Simulador {
             this._colaBloqueados.push(proceso);
         }
     }
+
+    estadoActual() {         // devuelve el estado actual del sistema, de solo lectura
+        return {
+            tick: this._tick,
+            enCpu: this._planificador.enCpu?.pid ?? null,
+            listos: this._planificador.colaListos.map(p => p.pid),
+            esperandoMemoria: this._colaNuevos.map(p => p.pid),
+            bloqueados: this._colaBloqueados.map(p => p.pid),
+        };
+    }
 }

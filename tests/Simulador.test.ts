@@ -52,5 +52,16 @@ describe("Simulador", () => {
         expect(sim.colaBloqueados.length).toBe(1);           
         expect(sim.colaBloqueados[0].estado).toBe("bloqueado");
     });
+
+    test("informa el estado actual del sistema", () => {
+        const sim = new Simulador(1024, 2);
+        sim.registrarProceso(new Proceso("P1", 200, 3));
+        sim.avanzarTick();
+
+        const estado = sim.estadoActual();
+
+        expect(estado.tick).toBe(1);
+        expect(estado.enCpu).toBe("P1");   
+    });
 });
 
