@@ -40,5 +40,17 @@ describe("Simulador", () => {
         expect(sim.memoria.bloques.length).toBe(1);          //P1 terminó y liberó, la memoria vuelve a toda libre
         expect(sim.memoria.bloques[0].tamanio).toBe(1024);
     });
+
+    test("bloquea al proceso que esta en la CPU y libera el procesador", () => {
+        const sim = new Simulador(1024, 2);
+        sim.registrarProceso(new Proceso("P1", 200, 5));
+        sim.avanzarTick();   //P1 entra a la CPU
+
+        sim.bloquearProcesoEnCpu(2);
+
+        expect(sim.planificador.enCpu).toBe(null);           
+        expect(sim.colaBloqueados.length).toBe(1);           
+        expect(sim.colaBloqueados[0].estado).toBe("bloqueado");
+    });
 });
 

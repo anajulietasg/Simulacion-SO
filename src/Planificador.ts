@@ -66,4 +66,10 @@ export class Planificador {
         return null;
     }
 
+    sacarDeCpu(): Proceso | null {       // saca al proceso de la CPU y lo devuelve, deja la CPU libre
+        const proceso = this._enCpu;
+        this._enCpu = null;
+        return proceso;
+    }
+
 }

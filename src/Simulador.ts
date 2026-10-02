@@ -78,4 +78,12 @@ export class Simulador {
             this._memoria.liberar(terminado.pid);  // si alguno termino, libero su memoria
         }
     }
+
+    bloquearProcesoEnCpu(ticks: number): void {           //manda a bloqueado al proceso que esta en la CPU, por la cantidad de ticks indicada
+        const proceso = this._planificador.sacarDeCpu();
+        if (proceso !== null) {
+            proceso.bloquearPor(ticks);
+            this._colaBloqueados.push(proceso);
+        }
+    }
 }
