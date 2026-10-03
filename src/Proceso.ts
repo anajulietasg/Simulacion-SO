@@ -30,9 +30,13 @@ export class Proceso {
   get memoriaNecesaria(): number { return this._memoriaNecesaria; }
   get tiempoRestante(): number { return this._tiempoRestante; }
   get quantumConsumido(): number { return this._quantumConsumido; }
+  get bloqueoRestante(): number { return this._bloqueoRestante; }
   get estado(): string { return this._estado.nombre(); }
 
   ejecutarUnTick(): void {        //usa un tick de CPU, le baja uno a lo que le falta y le suma uno a su quantum
+    if (this.estado !== "ejecutando") {
+      throw new Error(`El proceso ${this._pid} no esta en la CPU`);
+    }
     this._tiempoRestante--;
     this._quantumConsumido++;
   }
@@ -66,6 +70,9 @@ export class Proceso {
   }
 
   descontarBloqueo(): void { 
+    if (this.estado !== "bloqueado") {
+      throw new Error(`El proceso ${this._pid} no esta bloqueado`);
+    }
     this._bloqueoRestante--; 
   }
 

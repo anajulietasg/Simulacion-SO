@@ -1,6 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import { Proceso } from '../src/Proceso';
 
+function enCpu(p: Proceso): Proceso {      //lleva al proceso hasta ejecutando por el camino valido
+    p.pasarA("listo");
+    p.pasarA("ejecutando");
+    return p;
+}
+
 describe("Proceso", () => {
     test("se puede crear un proceso con sus datos y arranca en estado nuevo", () => {
         const  p = new Proceso("P1", 200, 5)
@@ -10,7 +16,7 @@ describe("Proceso", () => {
     });
 
     test("al ejecutar un tick baja el tiempo restante y sube el quantum", () => {
-        const p = new Proceso("P1", 200, 5);
+        const p = enCpu(new Proceso("P1", 200, 5));
 
         p.ejecutarUnTick();
 
@@ -19,14 +25,14 @@ describe("Proceso", () => {
     });
 
     test("terminado avisa cuando el proceso ya no tiene tiempo", () => {
-        const p = new Proceso("P1", 200, 1);   //le falta un solo tick
+        const p = enCpu(new Proceso("P1", 200, 1));   //le falta un solo tick
         expect(p.terminado()).toBe(false);   
         p.ejecutarUnTick();                     //usa su tick
         expect(p.terminado()).toBe(true);      //llega a cero
     });
 
     test("maneja su quantum, avisa cuando se agota y lo reinicia", () => {
-        const p = new Proceso("P1", 200, 5);
+        const p = enCpu(new Proceso("P1", 200, 5));
         p.ejecutarUnTick();
         expect(p.agotoQuantum(2)).toBe(false);    //lleva 1 de 2
         p.ejecutarUnTick();
@@ -62,5 +68,13 @@ describe("Proceso", () => {
         const p = new Proceso("P1", 200, 5);
         expect(() => p.pasarA("ejecutando")).toThrow();
         expect(p.estado).toBe("nuevo");
+    });
+
+    test("no puede ejecutar ni descontar bloqueo en un estado incorrecto", () => {
+        const p = new Proceso("P1", 200, 5);
+        expect(() => p.ejecutarUnTick()).toThrow();
+        expect(() => p.descontarBloqueo()).toThrow();
+        expect(p.tiempoRestante).toBe(5);
+        expect(p.bloqueoRestante).toBe(0);
     });
 });
