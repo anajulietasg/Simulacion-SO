@@ -1,4 +1,4 @@
-import { IEstado } from "../src/IEstado";
+import { IEstado } from "./IEstado";
 
 export class EstadoTerminado implements IEstado {
   nombre(): string {

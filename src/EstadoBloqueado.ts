@@ -1,4 +1,4 @@
-import { IEstado } from "../src/IEstado";
+import { IEstado } from "./IEstado";
 
 export class EstadoBloqueado implements IEstado {
   nombre(): string {

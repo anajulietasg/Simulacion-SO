@@ -41,12 +41,6 @@ export class Simulador {
     get colaNuevos(): readonly Proceso[] { 
         return [...this._colaNuevos]; 
     }
-    get colaBloqueados(): readonly Proceso[] { 
-        return [...this._colaBloqueados]; 
-    }
-    get ticksCpuOcupada(): number { 
-        return this._ticksCpuOcupada; 
-    }
 
     registrarProceso(proceso: Proceso): void {           //ingresa un proceso nuevo al sistema, todavia sin memoria
         if (this._pidsUsados.has(proceso.pid)) {

@@ -1,5 +1,5 @@
-import { IEstado } from "../src/IEstado";
-import { crearEstado } from "../src/FabricaEstados";
+import { IEstado } from "./IEstado";
+import { crearEstado } from "./FabricaEstados";
 
 export class Proceso {
   private _pid: string;

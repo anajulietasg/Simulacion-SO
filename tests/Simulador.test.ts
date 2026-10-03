@@ -1,6 +1,8 @@
 import { describe, test, expect } from "vitest";
 import { Simulador } from "../src/Simulador";
 import { Proceso } from "../src/Proceso";
+import { BestFit } from "../src/BestFit";
+import { WorstFit } from "../src/WorstFit";
 
 describe("Simulador", () => {
     test("empieza en tick 0 con memoria y planificador listos", () => {
@@ -28,26 +30,18 @@ describe("Simulador", () => {
         sim.avanzarTick();
 
         expect(sim.tick).toBe(1);
+        expect(sim.estadoActual().terminados).toEqual(["P1"]);
         expect(sim.estadoActual().mapaMemoria).toEqual([{ inicio: 0, tamanio: 1024, pid: null }]);   //P1 terminó y liberó
-    });
-
-    test("informa el estado actual del sistema", () => {
-        const sim = new Simulador(1024, 2);
-        sim.registrarProceso(new Proceso("P1", 200, 3));
-        sim.avanzarTick();
-
-        const estado = sim.estadoActual();
-
-        expect(estado.tick).toBe(1);
-        expect(estado.enCpu).toBe("P1");   
     });
 
     test("cuenta los ticks en que la CPU estuvo ocupada", () => {
         const sim = new Simulador(1024, 2);
-        sim.registrarProceso(new Proceso("P1", 200, 3));
-        sim.avanzarTick();
-        sim.avanzarTick();
-        expect(sim.ticksCpuOcupada).toBe(2);  
+        sim.registrarProceso(new Proceso("P1", 200, 1));
+        sim.registrarProceso(new Proceso("P2", 200, 1));
+        sim.avanzarTick();                    //P1 usa la CPU
+        sim.avanzarTick();                    //P2 usa la CPU
+        sim.avanzarTick();                    //ya no hay nadie, la CPU esta libre
+        expect(sim.metricas().usoCpu).toBeCloseTo(66.67);   //2 de 3 ticks
     });
 
     test("reune las metricas del sistema", () => {
@@ -76,15 +70,6 @@ describe("Simulador", () => {
         expect(() => sim.registrarProceso(new Proceso("P1", 2048, 3))).toThrow();
     });
 
-    test("el estado muestra los terminados y el mapa de memoria", () => {
-        const sim = new Simulador(1024, 2);
-        sim.registrarProceso(new Proceso("P1", 200, 1));   
-        sim.avanzarTick();
-        const estado = sim.estadoActual();
-        expect(estado.terminados).toEqual(["P1"]);          
-        expect(estado.mapaMemoria.length).toBeGreaterThan(0);  //hay mapa
-    });
-
     test("E/S, bloquea, conserva la memoria, no consume CPU y vuelve a listos al vencer", () => {
         const sim = new Simulador(1024, 2);
         const p1 = new Proceso("P1", 200, 4);
@@ -107,6 +92,87 @@ describe("Simulador", () => {
         expect(e.bloqueados).toEqual([]);
         expect(e.enCpu).toBe("P1");
         expect(p1.tiempoRestante).toBe(2);
+    });
+
+    test("rechaza registrar un proceso que no esta en estado nuevo", () => {
+        const sim = new Simulador(1024, 2);
+        const p = new Proceso("P1", 100, 2);
+        p.pasarA("listo");
+        expect(() => sim.registrarProceso(p)).toThrow();
+    });
+
+    test("si no entra queda esperando y entra en el tick siguiente a una liberacion", () => {
+        const sim = new Simulador(1000, 2);
+        sim.registrarProceso(new Proceso("P1", 600, 1));
+        sim.registrarProceso(new Proceso("P2", 600, 1));
+        sim.avanzarTick();                                  //P1 entra y termina, P2 no entró
+        expect(sim.estadoActual().esperandoMemoria).toEqual(["P2"]);
+        expect(sim.colaNuevos[0].estado).toBe("esperando_memoria");
+        sim.avanzarTick();                                  //la memoria liberada se usa en esta admision
+        expect(sim.estadoActual().terminados).toEqual(["P1", "P2"]);
+    });
+
+    test("un proceso que no entra no frena a otro que si entra", () => {
+        const sim = new Simulador(1000, 2);
+        sim.registrarProceso(new Proceso("P1", 700, 3));
+        sim.registrarProceso(new Proceso("P2", 500, 3));    //no entra
+        sim.registrarProceso(new Proceso("P3", 200, 3));    //si entra
+        sim.avanzarTick();
+        expect(sim.estadoActual().esperandoMemoria).toEqual(["P2"]);
+        expect(sim.estadoActual().listos).toEqual(["P3"]);
+    });
+
+    test("CASO: Q=2, P1 con CPU 3 y P2 con CPU 2 ejecuta P1 P1 P2 P2 P1 con un cambio de contexto", () => {
+        const sim = new Simulador(1024, 2);
+        sim.registrarProceso(new Proceso("P1", 200, 3));
+        sim.registrarProceso(new Proceso("P2", 200, 2));
+        const orden: string[] = [];
+        for (let i = 0; i < 5; i++) {
+            const terminadosAntes = sim.estadoActual().terminados.length;
+            sim.avanzarTick();
+            const e = sim.estadoActual();
+            orden.push(e.terminados.length > terminadosAntes ? e.terminados.at(-1)! : (e.enCpu ?? e.listos.at(-1)!));
+        }
+        expect(orden).toEqual(["P1", "P1", "P2", "P2", "P1"]);
+        expect(sim.metricas().cambiosDeContexto).toBe(1);
+    });
+
+    test("nunca hay duplicados en las colas ni mas de un proceso en CPU", () => {
+        const sim = new Simulador(1024, 2);
+        ["P1", "P2", "P3"].forEach(pid => sim.registrarProceso(new Proceso(pid, 100, 3)));
+        for (let i = 0; i < 6; i++) {
+            sim.avanzarTick();
+            const e = sim.estadoActual();
+            const todos = [...e.listos, ...e.bloqueados, ...e.esperandoMemoria, ...(e.enCpu ? [e.enCpu] : [])];
+            expect(new Set(todos).size).toBe(todos.length);
+        }
+    });
+
+    test("permite elegir la politica al configurar", () => {
+        const huecoDondeEntraE = (sim: Simulador) => {
+            sim.registrarProceso(new Proceso("P1", 300, 1));   //ocupa 0 a 300 y termina en el tick 1
+            sim.registrarProceso(new Proceso("P2", 100, 9));   //ocupa 300 a 400
+            sim.registrarProceso(new Proceso("P3", 100, 1));   //ocupa 400 a 500 y termina en el tick 4
+            sim.registrarProceso(new Proceso("P4", 500, 9));   //ocupa 500 a 1000
+            for (let i = 0; i < 4; i++) sim.avanzarTick();     //quedan huecos de 300 en 0 y de 100 en 400
+            sim.registrarProceso(new Proceso("E", 50, 9));
+            sim.avanzarTick();
+            return sim.estadoActual().mapaMemoria.find(b => b.pid === "E")!.inicio;
+        };
+        expect(huecoDondeEntraE(new Simulador(1000, 2))).toBe(0);                   //First-Fit, el primero
+        expect(huecoDondeEntraE(new Simulador(1000, 2, new BestFit()))).toBe(400);  //Best-Fit, el mas chico
+        expect(huecoDondeEntraE(new Simulador(1000, 2, new WorstFit()))).toBe(0);   //Worst-Fit, el mas grande
+    });
+
+    test("el estado se entrega como copia y no cambia el sistema", () => {
+        const sim = new Simulador(1024, 2);
+        sim.registrarProceso(new Proceso("P1", 200, 3));
+        sim.avanzarTick();
+        const e = sim.estadoActual();
+        e.listos.push("PX");
+        e.mapaMemoria[0].pid = "PX";
+        expect(sim.estadoActual().listos).toEqual([]);
+        expect(sim.estadoActual().mapaMemoria[0].pid).toBe("P1");
     });
 });
 
