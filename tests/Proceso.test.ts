@@ -51,7 +51,7 @@ describe("Proceso", () => {
     test("cada estado conoce sus propias transiciones validas", () => {
         const p = new Proceso("P1", 200, 5);
         expect(p.puedePasarA("esperando_memoria")).toBe(true);     
-        expect(p.puedePasarA("listo")).toBe(false);
+        expect(p.puedePasarA("listo")).toBe(true);
         p.pasarA("ejecutando");
         expect(p.puedePasarA("bloqueado")).toBe(true);
         expect(p.puedePasarA("nuevo")).toBe(false);

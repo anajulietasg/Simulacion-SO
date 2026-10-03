@@ -5,6 +5,6 @@ export class EstadoNuevo implements IEstado {
         return "nuevo";
     }
     puedePasarA(destino: string): boolean {          //desde nuevo solo puede pasar a esperando memoria
-        return destino === "esperando_memoria";
+        return destino === "listo" || destino === "esperando_memoria";
     }
 }
