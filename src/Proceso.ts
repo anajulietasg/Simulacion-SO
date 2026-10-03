@@ -1,8 +1,11 @@
+import { IEstado } from "../src/IEstado";
+import { crearEstado } from "../src/FabricaEstados";
+
 export class Proceso {
   private _pid: string;
   private _memoriaNecesaria: number;
   private _tiempoRestante: number;
-  private _estado: string;
+  private _estado: IEstado;
   private _quantumConsumido: number;      //ticks seguidos que lleva en la CPU en su turno
   private _bloqueoRestante: number = 0;       //ticks que le faltan esperar
 
@@ -19,7 +22,7 @@ export class Proceso {
     this._pid = pid;
     this._memoriaNecesaria = memoriaNecesaria;
     this._tiempoRestante = tiempoCpu;
-    this._estado = "nuevo";
+    this._estado = crearEstado("nuevo");
     this._quantumConsumido = 0;
   }
 
@@ -27,7 +30,7 @@ export class Proceso {
   get memoriaNecesaria(): number { return this._memoriaNecesaria; }
   get tiempoRestante(): number { return this._tiempoRestante; }
   get quantumConsumido(): number { return this._quantumConsumido; }
-  get estado(): string { return this._estado; }
+  get estado(): string { return this._estado.nombre(); }
 
   ejecutarUnTick(): void {        //usa un tick de CPU, le baja uno a lo que le falta y le suma uno a su quantum
     this._tiempoRestante--;
@@ -46,12 +49,16 @@ export class Proceso {
     return this._quantumConsumido === limite;
   }
 
-  pasarA(nuevoEstado: string): void {            // cambia el estado del proceso
-    this._estado = nuevoEstado;
+  pasarA(destino: string): void {            // cambia el estado del proceso
+    this._estado = crearEstado(destino);
+  }
+
+  puedePasarA(destino: string): boolean {
+    return this._estado.puedePasarA(destino);
   }
 
   bloquearPor(ticks: number): void {
-    this._estado = "bloqueado";
+    this.pasarA("bloqueado");
     this._bloqueoRestante = ticks;
   }
 

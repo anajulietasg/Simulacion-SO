@@ -47,4 +47,13 @@ describe("Proceso", () => {
         expect(() => new Proceso("P1", 200, 0)).toThrow();    
         expect(() => new Proceso("", 200, 3)).toThrow();      
     });
+
+    test("cada estado conoce sus propias transiciones validas", () => {
+        const p = new Proceso("P1", 200, 5);
+        expect(p.puedePasarA("esperando_memoria")).toBe(true);     
+        expect(p.puedePasarA("listo")).toBe(false);
+        p.pasarA("ejecutando");
+        expect(p.puedePasarA("bloqueado")).toBe(true);
+        expect(p.puedePasarA("nuevo")).toBe(false);
+    });
 });
