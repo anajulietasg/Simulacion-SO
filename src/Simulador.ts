@@ -102,10 +102,12 @@ export class Simulador {
         if (this._planificador.enCpu !== null) {
             this._ticksCpuOcupada++;                 //la CPU trabajó en este tick
         }
-        const terminado = this._planificador.ejecutarTick();
-        if (terminado !== null) {
-            this._memoria.liberar(terminado.pid);        //si alguno terminó, libero su memoria
-            this._terminados.push(terminado);
+        const salio = this._planificador.ejecutarTick();     //el que salio de la CPU por terminar o bloquearse
+        if (salio !== null && salio.estado === "terminado") {
+            this._memoria.liberar(salio.pid);        //si terminó, libero su memoria
+            this._terminados.push(salio);
+        } else if (salio !== null && salio.estado === "bloqueado") {
+            this._colaBloqueados.push(salio);        //si se bloqueó, conserva su memoria
         }
     }
 

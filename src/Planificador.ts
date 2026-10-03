@@ -57,6 +57,13 @@ export class Planificador implements IPlanificador {
             return proceso;          //lo devuelve para que el simulador libere su memoria
         }
 
+        if (proceso.debeBloquearse()) {     //el bloqueo por E/S tiene prioridad sobre el quantum
+            proceso.bloquearPorES();
+            this._enCpu = null;
+            this._cambiosDeContexto++;      //el bloqueo cuenta como cambio de contexto
+            return proceso;
+        }
+
         if (proceso.agotoQuantum(this._quantumLimite)) {
             if (this._colaListos.length > 0) {        //hay otros esperando, rota y se cuenta un cambio de contexto
                 proceso.pasarA("listo");

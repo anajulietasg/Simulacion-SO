@@ -82,4 +82,20 @@ describe("planificador round robin", () => {
         expect(() => new Planificador(0)).toThrow();
         expect(() => new Planificador(1.5)).toThrow();
     });
+
+    test("el bloqueo por E/S libera la CPU, cuenta cambio de contexto y gana sobre el quantum", () => {
+        const plan = new Planificador(2);
+        const p1 = new Proceso("P1", 200, 5);
+        p1.programarES(2, 1);                     //se bloquea justo cuando se le agota el quantum
+        plan.agregarAListos(p1);
+        plan.agregarAListos(new Proceso("P2", 100, 5));
+        plan.ponerAEjecutar();
+        plan.ejecutarTick();
+        const salio = plan.ejecutarTick();
+
+        expect(salio?.estado).toBe("bloqueado");
+        expect(plan.enCpu).toBe(null);
+        expect(plan.colaListos.map(p => p.pid)).toEqual(["P2"]);   //no se reencolo por quantum
+        expect(plan.cambiosDeContexto).toBe(1);
+    });
 });

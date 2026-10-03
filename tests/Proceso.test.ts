@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { Proceso } from '../src/Proceso';
 
-function enCpu(p: Proceso): Proceso {      //lleva al proceso hasta ejecutando por el camino valido
+function enCpu(p: Proceso): Proceso {      //lleva al proceso hasta ejecutando
     p.pasarA("listo");
     p.pasarA("ejecutando");
     return p;

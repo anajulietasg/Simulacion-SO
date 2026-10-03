@@ -117,6 +117,30 @@ describe("Simulador", () => {
         expect(sim.colaBloqueados.length).toBe(1);
         sim.avanzarTick();            //pasa el tick de bloqueo, vuelve a listos
         expect(sim.colaBloqueados.length).toBe(0);
-  });
+    });
+
+    test("E/S, bloquea, conserva la memoria, no consume CPU y vuelve a listos al vencer", () => {
+        const sim = new Simulador(1024, 2);
+        const p1 = new Proceso("P1", 200, 4);
+        p1.programarES(1, 2);                               //despues de 1 tick de CPU, dura 2
+        sim.registrarProceso(p1);
+
+        sim.avanzarTick();                                  //ejecuta y se bloquea
+        let e = sim.estadoActual();
+        expect(e.bloqueados).toEqual(["P1"]);
+        expect(e.enCpu).toBe(null);
+        expect(e.mapaMemoria[0].pid).toBe("P1");            //conserva la memoria
+        expect(sim.metricas().cambiosDeContexto).toBe(1);   //el bloqueo cuenta
+
+        sim.avanzarTick();                                  //le queda 1 de espera
+        expect(sim.estadoActual().bloqueados).toEqual(["P1"]);
+        expect(p1.tiempoRestante).toBe(3);                  //no consumio CPU bloqueado
+
+        sim.avanzarTick();                                  //vence y se despacha en el mismo tick
+        e = sim.estadoActual();
+        expect(e.bloqueados).toEqual([]);
+        expect(e.enCpu).toBe("P1");
+        expect(p1.tiempoRestante).toBe(2);
+    });
 });
 
