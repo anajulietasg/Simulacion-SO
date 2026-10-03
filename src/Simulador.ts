@@ -3,10 +3,12 @@ import { Planificador } from "./Planificador";
 import { Proceso } from "./Proceso";
 import { IAsignador } from "./IAsignador";
 import { FirstFit } from "./FirstFit";
+import { IGestorMemoria } from "./IGestorMemoria";
+import { IPlanificador } from "./IPlanificador";
 
 export class Simulador {
-    private _memoria: AdminMemoria;
-    private _planificador: Planificador;
+    private _memoria: IGestorMemoria;
+    private _planificador: IPlanificador;
     private _tick: number;                  //el reloj, cuántos ticks pasaron
     private _colaNuevos: Proceso[] = [];    //procesos que todavia no tienen memoria
     private _colaBloqueados: Proceso[] = [];     //procesos esperando una entrada o salida
@@ -35,12 +37,6 @@ export class Simulador {
 
     get tick(): number { 
         return this._tick; 
-    }
-    get memoria(): AdminMemoria { 
-        return this._memoria; 
-    }
-    get planificador(): Planificador { 
-        return this._planificador; 
     }
     get colaNuevos(): readonly Proceso[] { 
         return [...this._colaNuevos]; 
@@ -95,7 +91,6 @@ export class Simulador {
     }
 
     avanzarTick(): void {
-        this._tick++;
         this.admitirProcesos();        //intento dar memoria a los nuevos
         this.actualizarBloqueados();   //reviso los que esperaban una entrada o salida
         this._planificador.ponerAEjecutar();   //si la CPU esta libre, despacho
@@ -109,14 +104,7 @@ export class Simulador {
         } else if (salio !== null && salio.estado === "bloqueado") {
             this._colaBloqueados.push(salio);        //si se bloqueó, conserva su memoria
         }
-    }
-
-    bloquearProcesoEnCpu(ticks: number): void {           //manda a bloqueado al proceso que esta en la CPU, por la cantidad de ticks indicada
-        const proceso = this._planificador.sacarDeCpu();
-        if (proceso !== null) {
-            proceso.bloquearPor(ticks);
-            this._colaBloqueados.push(proceso);
-        }
+        this._tick++;
     }
 
     estadoActual() {         // devuelve el estado actual del sistema, de solo lectura

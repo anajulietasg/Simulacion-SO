@@ -5,9 +5,12 @@ import { Proceso } from "../src/Proceso";
 describe("Simulador", () => {
     test("empieza en tick 0 con memoria y planificador listos", () => {
         const sim = new Simulador(1024, 2);
-        expect(sim.tick).toBe(0);
-        expect(sim.memoria.bloques.length).toBe(1);           //un solo bloque libre
-        expect(sim.planificador.colaListos.length).toBe(0);      // todavia no hay nadie esperando
+        const e = sim.estadoActual();
+        expect(e.tick).toBe(0);
+        expect(e.mapaMemoria).toEqual([{ inicio: 0, tamanio: 1024, pid: null }]);   //un solo bloque libre
+        expect(e.listos).toEqual([]);                  //todavia no hay nadie esperando
+        expect(e.enCpu).toBe(null);
+        expect(sim.metricas().usoCpu).toBe(0);         //en tick 0 es 0%
     });
 
     test("registra un proceso nuevo en la cola de nuevos", () => {
@@ -18,20 +21,6 @@ describe("Simulador", () => {
         expect(sim.colaNuevos[0].estado).toBe("nuevo");
     });
 
-    test("baja el bloqueo y manda a listos al que ya espero", () => {
-        const sim = new Simulador(1024, 2);
-        const p = new Proceso("P1", 200, 3);
-        p.pasarA("listo");
-        p.pasarA("ejecutando");
-        p.bloquearPor(1);                      //le falta 1 tick de espera
-        (sim as any)._colaBloqueados.push(p);    //lo meto a bloqueados
-
-        sim.actualizarBloqueados();        //le resta un tick de espera y lo manda a listos 
-
-        expect(sim.colaBloqueados.length).toBe(0);            
-        expect(sim.planificador.colaListos[0].pid).toBe("P1"); 
-    });
-
     test("en un tick admite, ejecuta y al terminar libera la memoria", () => {
         const sim = new Simulador(1024, 2);
         sim.registrarProceso(new Proceso("P1", 200, 1));   
@@ -39,20 +28,7 @@ describe("Simulador", () => {
         sim.avanzarTick();
 
         expect(sim.tick).toBe(1);
-        expect(sim.memoria.bloques.length).toBe(1);          //P1 terminó y liberó, la memoria vuelve a toda libre
-        expect(sim.memoria.bloques[0].tamanio).toBe(1024);
-    });
-
-    test("bloquea al proceso que esta en la CPU y libera el procesador", () => {
-        const sim = new Simulador(1024, 2);
-        sim.registrarProceso(new Proceso("P1", 200, 5));
-        sim.avanzarTick();   //P1 entra a la CPU
-
-        sim.bloquearProcesoEnCpu(2);
-
-        expect(sim.planificador.enCpu).toBe(null);           
-        expect(sim.colaBloqueados.length).toBe(1);           
-        expect(sim.colaBloqueados[0].estado).toBe("bloqueado");
+        expect(sim.estadoActual().mapaMemoria).toEqual([{ inicio: 0, tamanio: 1024, pid: null }]);   //P1 terminó y liberó
     });
 
     test("informa el estado actual del sistema", () => {
@@ -107,16 +83,6 @@ describe("Simulador", () => {
         const estado = sim.estadoActual();
         expect(estado.terminados).toEqual(["P1"]);          
         expect(estado.mapaMemoria.length).toBeGreaterThan(0);  //hay mapa
-    });
-
-    test("bloquear y despues desbloquear un proceso", () => {
-        const sim = new Simulador(1024, 2);
-        sim.registrarProceso(new Proceso("P1", 200, 5));
-        sim.avanzarTick();            
-        sim.bloquearProcesoEnCpu(1);  
-        expect(sim.colaBloqueados.length).toBe(1);
-        sim.avanzarTick();            //pasa el tick de bloqueo, vuelve a listos
-        expect(sim.colaBloqueados.length).toBe(0);
     });
 
     test("E/S, bloquea, conserva la memoria, no consume CPU y vuelve a listos al vencer", () => {

@@ -95,11 +95,6 @@ export class Proceso {
     this._esDisparo = null;             //la E/S ya se uso
   }
 
-  bloquearPor(ticks: number): void {
-    this.pasarA("bloqueado");
-    this._bloqueoRestante = ticks;
-  }
-
   descontarBloqueo(): void { 
     if (this.estado !== "bloqueado") {
       throw new Error(`El proceso ${this._pid} no esta bloqueado`);
