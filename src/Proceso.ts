@@ -50,6 +50,9 @@ export class Proceso {
   }
 
   pasarA(destino: string): void {            // cambia el estado del proceso
+    if (!this._estado.puedePasarA(destino)) {
+      throw new Error(`No se puede pasar de ${this.estado} a ${destino}`);
+    }
     this._estado = crearEstado(destino);
   }
 

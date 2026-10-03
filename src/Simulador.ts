@@ -59,8 +59,10 @@ export class Simulador {
         if (proceso.memoriaNecesaria > this._tamanioMemoria) {
             throw new Error(`El proceso ${proceso.pid} pide mas memoria que la total`);
         }
+        if (proceso.estado !== "nuevo") {
+            throw new Error(`El proceso ${proceso.pid} tiene que estar en estado nuevo`);
+        }
         this._pidsUsados.add(proceso.pid);
-        proceso.pasarA("nuevo");
         this._colaNuevos.push(proceso);
     }
 
@@ -70,7 +72,9 @@ export class Simulador {
             if (this._memoria.asignar(proceso)) {
                 this._planificador.agregarAListos(proceso);   //consiguió memoria, va a la fila de la CPU
             } else {
-                proceso.pasarA("esperando_memoria");
+                if (proceso.estado === "nuevo") {
+                    proceso.pasarA("esperando_memoria");    //solo la primera vez que no entra
+                }
                 siguen.push(proceso);                          //no entró, sigue esperando
             }
         }

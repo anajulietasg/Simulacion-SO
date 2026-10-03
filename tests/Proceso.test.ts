@@ -52,8 +52,15 @@ describe("Proceso", () => {
         const p = new Proceso("P1", 200, 5);
         expect(p.puedePasarA("esperando_memoria")).toBe(true);     
         expect(p.puedePasarA("listo")).toBe(true);
+        p.pasarA("listo");
         p.pasarA("ejecutando");
         expect(p.puedePasarA("bloqueado")).toBe(true);
         expect(p.puedePasarA("nuevo")).toBe(false);
+    });
+
+    test("pasarA rechaza transiciones invalidas y no cambia el estado", () => {
+        const p = new Proceso("P1", 200, 5);
+        expect(() => p.pasarA("ejecutando")).toThrow();
+        expect(p.estado).toBe("nuevo");
     });
 });
