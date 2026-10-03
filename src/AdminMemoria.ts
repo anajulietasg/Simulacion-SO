@@ -2,8 +2,9 @@ import { Bloque } from "./Bloque";
 import { Proceso } from "./Proceso";
 import { IAsignador } from "./IAsignador";
 import { FirstFit } from "./FirstFit";
+import { IGestorMemoria } from "./IGestorMemoria";
 
-export class AdminMemoria {       //la memoria es una lista de bloques
+export class AdminMemoria implements IGestorMemoria {       //la memoria es una lista de bloques
   private _bloques: Bloque[];
   private politica: IAsignador;
 
@@ -13,7 +14,7 @@ export class AdminMemoria {       //la memoria es una lista de bloques
   }
 
   get bloques(): readonly Bloque[] {    //vista readonly para que nadie modifique la lista desde afuera
-    return [...this._bloques];          //con [...] armo un array nuevo
+    return this._bloques.map(b => new Bloque(b.inicio, b.tamanio, b.pid));
   }
 
   asignar(proceso: Proceso): boolean {

@@ -99,4 +99,9 @@ describe("AdminMemoria", () => {
     expect(mem.fragmentacionExterna()).toBe(25);
   });
 
+  test("los bloques que se consultan son copias y no cambian la memoria", () => {
+    const mem = new AdminMemoria(1024);
+    mem.bloques[0].ocupar("PX");               //intento modificar desde afuera
+    expect(mem.bloques[0].estaLibre()).toBe(true);
+  });
 });

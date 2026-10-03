@@ -1,12 +1,16 @@
 import { Proceso } from "./Proceso";
+import { IPlanificador } from "./IPlanificador";
 
-export class Planificador {
+export class Planificador implements IPlanificador {
     private _colaListos: Proceso[];     //la fila de procesos que esperan la CPU
     private _quantumLimite: number;      //cuantos ticks seguidos puede usar cada uno
     private _enCpu: Proceso | null;     //el unico proceso que está ejecutando, o nadie
     private _cambiosDeContexto: number;
 
     constructor(quantumLimite: number = 2) {
+        if (!Number.isInteger(quantumLimite) || quantumLimite <= 0) {
+            throw new Error("El quantum debe ser un entero positivo");
+        }
         this._colaListos = [];                //arranca vacia
         this._quantumLimite = quantumLimite;
         this._enCpu = null;

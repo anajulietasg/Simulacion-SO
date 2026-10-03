@@ -77,4 +77,9 @@ describe("planificador round robin", () => {
         expect(plan.enCpu?.quantumConsumido).toBe(0);   //renovó el quantum
         expect(plan.cambiosDeContexto).toBe(0);
     });
+
+    test("rechaza un quantum invalido", () => {
+        expect(() => new Planificador(0)).toThrow();
+        expect(() => new Planificador(1.5)).toThrow();
+    });
 });
