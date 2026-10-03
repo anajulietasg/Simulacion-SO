@@ -77,4 +77,26 @@ describe("Proceso", () => {
         expect(p.tiempoRestante).toBe(5);
         expect(p.bloqueoRestante).toBe(0);
     });
+
+    test("la E/S se dispara despues de los ticks indicados y bloquea", () => {
+        const p = enCpu(new Proceso("P1", 200, 5));
+        p.programarES(2, 3);
+        p.ejecutarUnTick();
+        expect(p.debeBloquearse()).toBe(false);
+        p.ejecutarUnTick();
+        expect(p.debeBloquearse()).toBe(true);
+        p.bloquearPorES();
+        expect(p.estado).toBe("bloqueado");
+        expect(p.bloqueoRestante).toBe(3);
+        expect(p.debeBloquearse()).toBe(false);   //la E/S ya se uso
+    });
+
+    test("rechaza eventos de E/S invalidos", () => {
+        const p = new Proceso("P1", 200, 5);
+        expect(() => p.programarES(0, 2)).toThrow();     //disparo no positivo
+        expect(() => p.programarES(2, 0)).toThrow();     //duracion no positiva
+        expect(() => p.programarES(5, 2)).toThrow();     //se dispararia cuando ya termino
+        p.programarES(2, 2);
+        expect(() => p.programarES(3, 2)).toThrow();     //ya tiene una programada
+    });
 });
