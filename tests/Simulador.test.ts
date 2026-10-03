@@ -106,5 +106,15 @@ describe("Simulador", () => {
         expect(estado.terminados).toEqual(["P1"]);          
         expect(estado.mapaMemoria.length).toBeGreaterThan(0);  //hay mapa
     });
+
+    test("bloquear y despues desbloquear un proceso", () => {
+        const sim = new Simulador(1024, 2);
+        sim.registrarProceso(new Proceso("P1", 200, 5));
+        sim.avanzarTick();            
+        sim.bloquearProcesoEnCpu(1);  
+        expect(sim.colaBloqueados.length).toBe(1);
+        sim.avanzarTick();            //pasa el tick de bloqueo, vuelve a listos
+        expect(sim.colaBloqueados.length).toBe(0);
+  });
 });
 

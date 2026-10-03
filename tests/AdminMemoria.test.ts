@@ -98,4 +98,5 @@ describe("AdminMemoria", () => {
     // fragmentacion = (1 - 300/400) * 100 = 25
     expect(mem.fragmentacionExterna()).toBe(25);
   });
+
 });
