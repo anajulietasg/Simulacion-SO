@@ -104,4 +104,49 @@ describe("AdminMemoria", () => {
     mem.bloques[0].ocupar("PX");               //intento modificar desde afuera
     expect(mem.bloques[0].estaLibre()).toBe(true);
   });
+
+  test("al liberar, se junta con el libre de la izquierda", () => {
+    const mem = new AdminMemoria(1024);
+    mem.asignar(new Proceso("P1", 200, 5));
+    mem.asignar(new Proceso("P2", 300, 5));
+    mem.asignar(new Proceso("P3", 524, 5));    //memoria llena
+    mem.liberar("P1");
+    mem.liberar("P2");                          //su vecino izquierdo P1 ya estaba libre
+    expect(mem.bloques.length).toBe(2);
+    expect(mem.bloques[0].tamanio).toBe(500);
+    expect(mem.bloques[0].estaLibre()).toBe(true);
+  });
+
+  test("al liberar, se junta con los dos vecinos a la vez", () => {
+    const mem = new AdminMemoria(1024);
+    mem.asignar(new Proceso("P1", 200, 5));
+    mem.asignar(new Proceso("P2", 300, 5));
+    mem.asignar(new Proceso("P3", 524, 5));
+    mem.liberar("P1");
+    mem.liberar("P3");
+    mem.liberar("P2");                          //queda libre entre dos libres
+    expect(mem.bloques.length).toBe(1);
+    expect(mem.bloques[0].tamanio).toBe(1024);
+  });
+
+  test("con la memoria llena no hay hueco y la fragmentacion es 0", () => {
+    const mem = new AdminMemoria(1024);
+    mem.asignar(new Proceso("P1", 1024, 5));
+    expect(mem.metricas().libreTotal).toBe(0);
+    expect(mem.metricas().mayorHueco).toBe(0);
+    expect(mem.fragmentacionExterna()).toBe(0);
+    expect(mem.asignar(new Proceso("P2", 1, 5))).toBe(false);
+  });
+
+  test("falla aunque la suma de libres alcance, sin tocar los bloques", () => {
+    const mem = new AdminMemoria(500);
+    mem.asignar(new Proceso("P1", 100, 3));
+    mem.asignar(new Proceso("P2", 100, 3));
+    mem.asignar(new Proceso("P3", 300, 3));
+    mem.liberar("P1");
+    mem.liberar("P3");                          //huecos de 100 y 300, total 400
+    const antes = JSON.stringify(mem.bloques);
+    expect(mem.asignar(new Proceso("P4", 350, 3))).toBe(false);
+    expect(JSON.stringify(mem.bloques)).toBe(antes);
+  });
 });

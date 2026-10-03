@@ -28,4 +28,10 @@ describe("Politicas de asignacion", () => {
   test("devuelve -1 si no hay lugar", () => {
     expect(new FirstFit().elegirIndice(escenario(), 500)).toBe(-1);
   });
+
+  test("ante empate eligen la menor direccion", () => {
+    const empate = [new Bloque(0, 100), new Bloque(100, 50, "PX"), new Bloque(150, 100)];
+    expect(new BestFit().elegirIndice(empate, 80)).toBe(0);
+    expect(new WorstFit().elegirIndice(empate, 80)).toBe(0);
+  });
 });
