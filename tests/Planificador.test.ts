@@ -98,4 +98,30 @@ describe("planificador round robin", () => {
         expect(plan.colaListos.map(p => p.pid)).toEqual(["P2"]);   //no se reencolo por quantum
         expect(plan.cambiosDeContexto).toBe(1);
     });
+
+    test("terminar justo en el limite del quantum no lo reencola", () => {
+        const plan = new Planificador(2);
+        plan.agregarAListos(new Proceso("P1", 200, 2));
+        plan.agregarAListos(new Proceso("P2", 100, 5));
+        plan.ponerAEjecutar();
+        plan.ejecutarTick();
+        const salio = plan.ejecutarTick();       //P1 termina en el tick 2 de 2
+
+        expect(salio?.estado).toBe("terminado");
+        expect(plan.colaListos.map(p => p.pid)).toEqual(["P2"]);   //P1 no volvio a la fila
+        expect(plan.cambiosDeContexto).toBe(0);
+    });
+
+    test("no acepta el mismo proceso dos veces en la cola", () => {
+        const plan = new Planificador(2);
+        const p = new Proceso("P1", 200, 3);
+        plan.agregarAListos(p);
+        expect(() => plan.agregarAListos(p)).toThrow();
+        expect(plan.colaListos.length).toBe(1);
+    });
+
+    test("sin procesos en CPU, ejecutarTick no hace nada", () => {
+        const plan = new Planificador(2);
+        expect(plan.ejecutarTick()).toBe(null);
+    });
 });
