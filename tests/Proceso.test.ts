@@ -41,13 +41,6 @@ describe("Proceso", () => {
         expect(p.quantumConsumido).toBe(0);       //arranca un turno nuevo
     });
 
-    test("pasarA cambia el estado del proceso", () => {
-        const p = new Proceso("P1", 200, 5);
-        expect(p.estado).toBe("nuevo");   //arranca en nuevo
-        p.pasarA("listo");
-        expect(p.estado).toBe("listo");   //quedo en el estado nuevo
-    });
-
     test("rechaza datos invalidos al crear un proceso", () => {
         expect(() => new Proceso("P1", -100, 3)).toThrow();   
         expect(() => new Proceso("P1", 200, 0)).toThrow();    

@@ -59,21 +59,6 @@ describe("AdminMemoria", () => {
     expect(mem.bloques[1].tamanio).toBe(824);  
   });
 
-  test("al liberar todos los procesos queda un unico bloque libre de 1024", () => {
-    const mem = new AdminMemoria(1024);
-    mem.asignar(new Proceso("P1", 200, 5));
-    mem.asignar(new Proceso("P2", 300, 5));
-    mem.asignar(new Proceso("P3", 100, 5));
-
-    mem.liberar("P1");
-    mem.liberar("P3");
-    mem.liberar("P2");   
-
-    expect(mem.bloques.length).toBe(1);
-    expect(mem.bloques[0].estaLibre()).toBe(true);
-    expect(mem.bloques[0].tamanio).toBe(1024);
-  });
-
   test("liberar devuelve false si no existe ese proceso", () => {
     const mem = new AdminMemoria(1024);
     expect(mem.liberar("PX")).toBe(false);

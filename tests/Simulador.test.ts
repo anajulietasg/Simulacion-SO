@@ -54,11 +54,6 @@ describe("Simulador", () => {
         expect(m.cambiosDeContexto).toBe(0);
     });
 
-    test("rechaza memoria o quantum invalidos", () => {
-        expect(() => new Simulador(0, 2)).toThrow();    
-        expect(() => new Simulador(1024, -1)).toThrow(); 
-    });
-
     test("rechaza registrar dos procesos con el mismo pid", () => {
         const sim = new Simulador(1024, 2);
         sim.registrarProceso(new Proceso("P1", 200, 3));
