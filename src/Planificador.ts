@@ -53,7 +53,7 @@ export class Planificador implements IPlanificador {
 
         if (proceso.terminado()) {          //si terminó su tiempo de CPU, lo saco de la CPU y no vuelve a la fila
             proceso.pasarA("terminado");
-            this._enCpu = null       //deja la CPU libre
+            this._enCpu = null;       //deja la CPU libre
             return proceso;          //lo devuelve para que el simulador libere su memoria
         }
 

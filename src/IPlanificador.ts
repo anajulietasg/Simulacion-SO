@@ -1,4 +1,4 @@
-import { Proceso } from "../src/Proceso";
+import { Proceso } from "./Proceso";
 
 export interface IPlanificador {           //lo que el simulador necesita del planificador de CPU
   readonly colaListos: readonly Proceso[];

@@ -13,7 +13,7 @@ export class AdminMemoria implements IGestorMemoria {       //la memoria es una 
     this.politica = politica;
   }
 
-  get bloques(): readonly Bloque[] {    //vista readonly para que nadie modifique la lista desde afuera
+  get bloques(): readonly Bloque[] {    //devuelve copias para que nadie modifique la memoria desde afuera
     return this._bloques.map(b => new Bloque(b.inicio, b.tamanio, b.pid));
   }
 
