@@ -1,5 +1,5 @@
 # Simulacion-SO
-Biblioteca en TypeScript que simula cómo un sistema operativo reparte la memoria y la CPU entre varios procesos.El tiempo avanza por ticks, y en cada tick los procesos piden memoria, esperan su turno en la CPU con Round-Robin, pueden bloquearse por entrada y salida y liberan su memoria al terminar.
+Biblioteca en TypeScript que simula cómo un sistema operativo reparte la memoria y la CPU entre varios procesos. El tiempo avanza por ticks, y en cada tick los procesos piden memoria, esperan su turno en la CPU con Round-Robin, pueden bloquearse por entrada y salida y liberan su memoria al terminar.
 
 La memoria se asigna con First-Fit, Best-Fit o Worst-Fit, y al liberar un proceso se juntan los huecos libres vecinos (coalescencia).
 
@@ -15,7 +15,7 @@ npm install
 
 ## Correr los tests
 comando: npm test\
-Tienen que pasar los 69 tests.
+Tienen que pasar los 66 tests.
 
 ## Cobertura
 comando: npx vitest run --coverage\
@@ -31,7 +31,7 @@ docs/diagramas: El diagrama de clases y los tres diagramas de secuencia
 
 ## Diagramas
 En docs/diagramas están el diagrama de clases y los tres diagramas de secuencia (admisión y asignación de memoria, un tick de Round-Robin, y bloqueo por entrada y salida).
-Los .jpg son la versión para ver y los .drawio son los editables, que se abren con draw.io(https://app.diagrams.net).
+Los .jpg son la versión para ver y los .drawio son los editables, que se abren con [draw.io](https://app.diagrams.net).
 
 ## Cómo se usa
 Se crea un simulador con el tamaño de la memoria, el quantum y la política, se registran procesos y se avanza de a un tick.
