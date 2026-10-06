@@ -75,7 +75,7 @@ export class AdminMemoria implements IGestorMemoria {       //la memoria es una 
   
   fragmentacionExterna(): number {             //qué tan partida esta la memoria libre
     const m = this.metricas();
-    if (m.libreTotal === 0) {
+    if (m.libreTotal === 0) {     //memroia llena, fragmentación externa = 0
       return 0;             
     }
     return (1 - m.mayorHueco / m.libreTotal) * 100;

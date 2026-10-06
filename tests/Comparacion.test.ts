@@ -8,7 +8,7 @@ import { WorstFit } from "../src/WorstFit";
 
 type Llegada = [string, number, number, number];     //pid, memoria, tiempo de CPU, tick en que llega
 
-function correr(memoria: number, politica: IAsignador, lote: Llegada[]) {     //corre el lote hasta que terminen todos y anota la fragmentacion de cada tick
+function correr(memoria: number, politica: IAsignador, lote: Llegada[]) {     //funcion ayudante, corre el lote hasta que terminen todos y anota la fragmentacion de cada tick
     const sim = new Simulador(memoria, 2, politica);
     const frag: number[] = [];
     let ticksEsperando = 0;
@@ -41,8 +41,9 @@ describe("Comparacion de politicas con el mismo lote", () => {
         const ff = correr(1000, new FirstFit(), loteConLlegadas);
         const bf = correr(1000, new BestFit(), loteConLlegadas);
         const wf = correr(1000, new WorstFit(), loteConLlegadas);
-        const promedio = (f: number[]) => f.reduce((a, b) => a + b, 0) / f.length;
+        const promedio = (f: number[]) => f.reduce((a, b) => a + b, 0) / f.length;     //promedio de la fragmentación de todos los ticks
 
+        expect(promedio(ff.frag)).toBeCloseTo(17.84, 1);
         expect(promedio(bf.frag)).toBeCloseTo(23.02, 1);
         expect(promedio(wf.frag)).toBeCloseTo(17.84, 1);
         expect(Math.max(...ff.frag)).toBeCloseTo(43.48, 1);
@@ -51,5 +52,8 @@ describe("Comparacion de politicas con el mismo lote", () => {
         expect(ff.sim.tick).toBe(28);
         expect(bf.sim.tick).toBe(28);
         expect(wf.sim.tick).toBe(28);
+        expect(ff.ticksEsperando).toBe(19);
+        expect(bf.ticksEsperando).toBe(28);
+        expect(wf.ticksEsperando).toBe(19);
     });
 });

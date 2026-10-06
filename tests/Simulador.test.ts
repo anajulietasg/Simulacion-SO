@@ -96,7 +96,7 @@ describe("Simulador", () => {
         expect(() => sim.registrarProceso(p)).toThrow();
     });
 
-    test("si no entra queda esperando y entra en el tick siguiente a una liberacion", () => {
+    test("si un proceso no entra, queda esperando y entra en el tick siguiente a una liberacion", () => {
         const sim = new Simulador(1000, 2);
         sim.registrarProceso(new Proceso("P1", 600, 1));
         sim.registrarProceso(new Proceso("P2", 600, 1));
@@ -121,7 +121,7 @@ describe("Simulador", () => {
         const sim = new Simulador(1024, 2);
         sim.registrarProceso(new Proceso("P1", 200, 3));
         sim.registrarProceso(new Proceso("P2", 200, 2));
-        const orden: string[] = [];
+        const orden: string[] = [];     //quien usó la CPU en cada tick
         for (let i = 0; i < 5; i++) {
             const terminadosAntes = sim.estadoActual().terminados.length;
             sim.avanzarTick();
@@ -144,7 +144,7 @@ describe("Simulador", () => {
     });
 
     test("permite elegir la politica al configurar", () => {
-        const huecoDondeEntraE = (sim: Simulador) => {
+        const huecoDondeEntraE = (sim: Simulador) => {          //constante que guarda una función auxiliar
             sim.registrarProceso(new Proceso("P1", 300, 1));   //ocupa 0 a 300 y termina en el tick 1
             sim.registrarProceso(new Proceso("P2", 100, 9));   //ocupa 300 a 400
             sim.registrarProceso(new Proceso("P3", 100, 1));   //ocupa 400 a 500 y termina en el tick 4
@@ -162,7 +162,7 @@ describe("Simulador", () => {
     test("el estado se entrega como copia y no cambia el sistema", () => {
         const sim = new Simulador(1024, 2);
         sim.registrarProceso(new Proceso("P1", 200, 3));
-        sim.avanzarTick();
+        sim.avanzarTick();       //p1 en la CPU, listos vacia
         const e = sim.estadoActual();
         e.listos.push("PX");
         e.mapaMemoria[0].pid = "PX";
